@@ -1,0 +1,135 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    background-color: #d3d3d3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    position: relative; 
+    overflow: hidden; 
+}
+
+.background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0; 
+}
+
+.container {
+    max-width: 800px;
+    width: 100%;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.795);
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    z-index: 1; 
+}
+
+h1 {
+    margin-bottom: 20px;
+    font-family: Impact, fantasy;
+    letter-spacing: 1px;
+}
+
+input[type="file"] {
+    padding: 10px;
+    border-radius: 5px;
+    border: 2px solid #fff;
+    display: block;
+    margin: 10px auto;
+}
+
+button {
+    width: 48%;
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #0fb855;
+    color: white;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+    box-shadow: 0 5px 10px rgb(106, 226, 136);
+    font-family: Impact, fantasy;
+    letter-spacing: 1px;
+}
+
+button:hover {
+    background-color: #219653;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+}
+
+th {
+    background-color: #1c699c;
+    color: white;
+}
+
+#text-box {
+    width: 100%;
+    height: 200px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    overflow: auto;
+    display: none;
+    background-color: #ffffff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    white-space: pre-wrap;
+    font-size: 14px;
+    margin-top: 20px;
+}
+
+.highlight-v4 {
+    background-color: rgba(255, 0, 0, 0.3);
+    font-weight: bold;
+}
+
+.highlight-v6 {
+    background-color: rgba(0, 255, 0, 0.3);
+    font-weight: bold;
+}
+
+
+.ball {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.6; 
+    pointer-events: none;
+}
+
+.highlight-v4, .highlight-v6 {
+    text-decoration: none !important;  /* Asegura que no se tachen */
+}
+
+/* Evita que un span global tenga tachado */
+span {
+    text-decoration: none !important;
+}

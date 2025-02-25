@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExIPs Master con Fondo Animado</title>
+    <link rel="stylesheet" href="PRECENTACION2.CSS">
+</head>
+<body>
+    <div class="background"></div>
+    <div class="container">
+        <h1>ExIPs Master</h1>
+        <input type="file" id="input-file" accept=".txt, .pdf, .docx, .xlsx"/>
+        <div class="action-buttons">
+            <button id="extract-button">Extraer</button>
+            <button id="remove-button">Eliminar</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>IPs encontradas</th>
+                    <th>IPs</th>
+                </tr>
+            </thead>
+            <tbody id="ip-table-body">
+            </tbody>
+        </table>
+        <div id="text-box"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <script src="PRECENTACION2.JS"></script>
+</body>
+</html>

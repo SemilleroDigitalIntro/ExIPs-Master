@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale: 1.0">
+    <title>Visualizador de Archivos</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: auto;
+            background-color: #f0f0f0;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            margin-bottom: 10px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .canvas-container {
+            width: 300px; /* Ancho inicial del canvas */
+            height: auto;
+            margin-bottom: 20px;
+            overflow: hidden; /* Ocultar el desbordamiento */
+            cursor: pointer; /* Cambiar cursor al pasar sobre el canvas */
+        }
+
+        .canvas {
+            width: 100%; /* Ajustar al ancho del contenedor */
+            transition: transform 0.3s; /* Suavizar la animación al expandir */
+        }
+
+        .expanded {
+            transform: scale(1.2); /* Aumentar tamaño al hacer clic */
+        }
+
+        #text-box {
+            width: 300px;
+            height: 100px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            overflow: auto;
+            display: none;
+            color: black;
+            background-color: #ffffff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            white-space: pre-wrap;
+            font-size: 14px;
+        }
+
+        #text-box.expanded {
+            width: 600px;
+            height: 300px;
+        }
+
+        .highlight {
+            text-shadow: 0 0 5px red, 0 0 10px red;
+            font-weight: bold;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+</head>
+<body>
+
+    <button id="load-button">Cargar Archivo TXT/PDF/DOCX</button>
+    <button id="delete-button" style="display: none;">Eliminar Archivo</button>
+    <button id="malcar-button" style="display: none;">Malcar Números "0"</button>
+    <div id="canvas-container"></div>
+    <div id="text-box"></div>
+
+    <script>
+        let originalContent = '';
+
+        document.getElementById('load-button').addEventListener('click', function() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.txt, .pdf, .docx';
+
+            input.onchange = event => {
+                const file = event.target.files[0];
+
+                if (file) {
+                    const reader = new FileReader();
+                    const fileType = file.type;
+
+                    // Limpiar el contenedor de canvas antes de cargar un nuevo archivo
+                    const canvasContainer = document.getElementById('canvas-container');
+                    canvasContainer.innerHTML = ''; // Limpiar el contenedor de canvas
+
+                    if (fileType === 'application/pdf') {
+                        reader.onload = function(e) {
+                            const pdfData = new Uint8Array(e.target.result);
+                            pdfjsLib.getDocument(pdfData).promise.then(pdf => {
+                                const numPages = pdf.numPages;
+                                let textContent = '';
+
+                                const renderPage = (pageNum) => {
+                                    pdf.getPage(pageNum).then(page => {
+                                        const viewport = page.getViewport({ scale: 0.5 }); // Escala inicial más pequeña
+                                        const canvas = document.createElement('canvas');
+                                        const context = canvas.getContext('2d');
+                                        canvas.height = viewport.height;
+                                        canvas.width = viewport.width;
+                                        canvas.className = 'canvas'; // Añadir clase para estilos
+                                        const canvasWrapper = document.createElement('div');
+                                        canvasWrapper.className = 'canvas-container';
+                                        canvasWrapper.appendChild(canvas);
+                                        canvasContainer.appendChild(canvasWrapper);
+
+                                        const renderContext = {
+                                            canvasContext: context,
+                                            viewport: viewport
+                                        };
+                                        page.render(renderContext).promise.then(() => {
+                                            // Extraer texto
+                                            page.getTextContent().then(text => {
+                                                text.items.forEach(item => {
+                                                    textContent += item.str + ' ';
+                                                });
+
+                                                if (pageNum < numPages) {
+                                                    renderPage(pageNum + 1);
+                                                } else {
+                                                    originalContent = textContent;
+                                                    const textBox = document.getElementById('text-box');
+                                                    textBox.textContent = originalContent;
+                                                    textBox.style.display = 'block';
+                                                    document.getElementById('malcar-button').style.display = 'inline';
+                                                    document.getElementById('delete-button').style.display = 'inline'; // Mostrar botón eliminar
+                                                }
+                                            });
+                                        });
+
+                                        // Añadir evento de clic para expandir
+                                        canvasWrapper.addEventListener('click', () => {
+                                            canvas.classList.toggle('expanded'); // Alternar clase para expandir
+                                        });
+                                    });
+                                };
+
+                                renderPage(1);
+                            });
+                        };
+                        reader.readAsArrayBuffer(file);
+                    } else if (fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+                        reader.onload = function(e) {
+                            const zip = new PizZip(e.target.result);
+                            const doc = new window.Docxtemplater().loadZip(zip);
+                            const text = doc.getFullText();
+                            originalContent = text;
+                            const textBox = document.getElementById('text-box');
+                            textBox.textContent = originalContent;
+                            textBox.style.display = 'block';
+                            document.getElementById('malcar-button').style.display = 'inline';
+                            document.getElementById('delete-button').style.display = 'inline'; // Mostrar botón eliminar
+                        };
+                        reader.readAsBinaryString(file);
+                    } else {
+                        reader.onload = function(e) {
+                            originalContent = e.target.result;
+                            const textBox = document.getElementById('text-box');
+                            textBox.textContent = originalContent;
+                            textBox.style.display = 'block';
+                            document.getElementById('malcar-button').style.display = 'inline';
+                            document.getElementById('delete-button').style.display = 'inline'; // Mostrar botón eliminar
+                        };
+                        reader.readAsText(file);
+                    }
+                }
+            };
+
+            input.click();
+        });
+
+        document.getElementById('delete-button').addEventListener('click', function() {
+            // Limpiar contenido
+            originalContent = '';
+            document.getElementById('text-box').textContent = '';
+            document.getElementById('text-box').style.display = 'none';
+            document.getElementById('malcar-button').style.display = 'none';
+            document.getElementById('delete-button').style.display = 'none';
+            document.getElementById('canvas-container').innerHTML = ''; // Limpiar el contenedor de canvas
+        });
+
+        document.getElementById('malcar-button').addEventListener('click', function() {
+            const highlightedContent = originalContent.replace(/0/g, '<span class="highlight">0</span>');
+            const textBox = document.getElementById('text-box');
+            textBox.innerHTML = highlightedContent;
+        });
+
+        document.getElementById('text-box').addEventListener('click', function() {
+            this.classList.toggle('expanded');
+        });
+    </script>
+
+</body>
+</html>
