@@ -134,7 +134,7 @@ def extraer_ips_de_archivo(ruta_archivo):
         return []
 
 # Ejemplo de uso de IP
-ruta_archivo = "C:/Users/maria magdalena/Downloads/datos.txt"
+ruta_archivo = "datos.txt"
 ips_encontradas = extraer_ips_de_archivo(ruta_archivo)
 
 # Aquí se imprimen las IP encontradas
